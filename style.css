@@ -163,6 +163,22 @@ body {
     transition: border-color 0.2s;
 }
 
+.priority-select {
+    padding: 10px 10px;
+    font-size: 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    outline: none;
+    background-color: white;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.priority-select:focus,
+.todo-input:focus {
+    border-color: #666666;
+}
+
 .todo-input:focus {
     border-color: #666666;
 }
