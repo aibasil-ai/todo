@@ -13,7 +13,23 @@
     <div class="app-container">
         <!-- 固定區域：標題和輸入框 -->
         <header class="header">
-            <h1 class="title">todo list</h1>
+            <div class="title-row">
+                <h1 class="title">todo list</h1>
+                <button id="settingsBtn" class="settings-btn" title="設定">⚙️</button>
+            </div>
+
+            <!-- 設定面板 -->
+            <div id="settingsPanel" class="settings-panel" style="display: none;">
+                <div class="settings-content">
+                    <label for="scriptUrlInput" class="settings-label">Google Apps Script URL：</label>
+                    <input type="text" id="scriptUrlInput" class="settings-input" 
+                           placeholder="https://script.google.com/macros/s/.../exec">
+                    <div class="settings-actions">
+                        <button id="saveSettingsBtn" class="save-settings-btn">儲存</button>
+                        <button id="cancelSettingsBtn" class="cancel-settings-btn">取消</button>
+                    </div>
+                </div>
+            </div>
 
             <div class="input-section">
                 <div class="new-todo-row">
