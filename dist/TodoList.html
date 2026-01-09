@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="簡潔的 Todo List 待辦事項應用程式">
+    <title>Todo List</title>
+    <style>
+        /* ===== CSS 變數定義 ===== */
+        :root {
+            --bg-color: #f5e6c8;
+            --container-bg: #ffffff;
+            --border-color: #333333;
+            --delete-btn-color: #ef4444;
+            --text-color: #333333;
+            --placeholder-color: #999999;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== 重置與基礎樣式 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ===== 主容器 ===== */
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+
+        /* ===== 固定區域：標題和輸入 ===== */
+        .header {
+            background-color: var(--bg-color);
+            padding-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            background-color: var(--container-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .new-todo-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .todo-input {
+            flex: 1;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .todo-input:focus {
+            border-color: #666666;
+        }
+
+        .todo-input::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        .add-btn {
+            padding: 10px 25px;
+            font-size: 1rem;
+            background-color: var(--container-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .add-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .add-btn:active {
+            transform: scale(0.98);
+        }
+
+        .description-input {
+            width: 100%;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            outline: none;
+            resize: vertical;
+            min-height: 60px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .description-input:focus {
+            border-color: #666666;
+        }
+
+        .description-input::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        /* ===== Description 區域包裝與快捷鍵提示 ===== */
+        .description-wrapper {
+            position: relative;
+        }
+
+        .shortcut-hint {
+            position: absolute;
+            bottom: 8px;
+            right: 10px;
+            font-size: 0.75rem;
+            color: #999999;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* ===== 可捲動區域：Todo 列表 ===== */
+        .todo-list-container {
+            flex: 1;
+            overflow-y: auto;
+            background-color: var(--container-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0;
+        }
+
+        .todo-list {
+            list-style: none;
+        }
+
+        /* ===== Todo Item 樣式 ===== */
+        .todo-item {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+
+        .todo-item-main {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .todo-item-main:hover {
+            background-color: #f9f9f9;
+        }
+
+        .todo-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: var(--text-color);
+        }
+
+        .todo-name {
+            flex: 1;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .delete-btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            color: white;
+            background-color: var(--delete-btn-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .delete-btn:hover {
+            background-color: #dc2626;
+        }
+
+        .delete-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ===== Description 展開區域 ===== */
+        .todo-description {
+            max-height: 0;
+            overflow: hidden;
+            background-color: #f8f8f8;
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+        }
+
+        .todo-description.expanded {
+            max-height: 500px;
+            padding: 15px;
+            padding-left: 50px;
+        }
+
+        .todo-description p {
+            font-size: 0.95rem;
+            color: #555555;
+            line-height: 1.5;
+        }
+
+        /* ===== 捲動條樣式 ===== */
+        .todo-list-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .todo-list-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .todo-list-container::-webkit-scrollbar-thumb {
+            background: #cccccc;
+            border-radius: 4px;
+        }
+
+        .todo-list-container::-webkit-scrollbar-thumb:hover {
+            background: #999999;
+        }
+
+        /* ===== RWD 響應式設計 ===== */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .title {
+                font-size: 1.5rem;
+            }
+
+            .new-todo-row {
+                flex-direction: column;
+            }
+
+            .add-btn {
+                width: 100%;
+            }
+
+            .todo-item-main {
+                padding: 12px;
+            }
+
+            .delete-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 固定區域：標題和輸入框 -->
+        <header class="header">
+            <h1 class="title">todo list</h1>
+
+            <div class="input-section">
+                <div class="new-todo-row">
+                    <input type="text" id="todoInput" class="todo-input" placeholder="new todo">
+                    <button id="addBtn" class="add-btn">add</button>
+                </div>
+
+                <div class="description-wrapper">
+                    <textarea id="descriptionInput" class="description-input" placeholder="description"
+                        rows="3"></textarea>
+                    <span class="shortcut-hint">Ctrl+Enter 送出</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 可捲動區域：Todo 列表 -->
+        <main class="todo-list-container">
+            <ul id="todoList" class="todo-list">
+                <!-- Todo items 會動態插入這裡 -->
+            </ul>
+        </main>
+    </div>
+
+    <script>
+        /**
+         * Todo List 應用程式主要邏輯
+         * 純 JavaScript 實作，無框架依賴
+         */
+
+        // ===== 預設 Todo 資料 =====
+        const defaultTodos = [
+            {
+                id: 1,
+                name: 'todo 1',
+                description: '這是 todo 1 的描述內容。你可以在這裡加入更多關於這個待辦事項的詳細說明。',
+                checked: false,
+                expanded: false
+            },
+            {
+                id: 2,
+                name: 'todo3',
+                description: '這是 todo3 的描述內容。點擊任務可以展開或收合這個描述區域。',
+                checked: false,
+                expanded: false
+            }
+        ];
+
+        // ===== 應用程式狀態 =====
+        let todos = [];
+        let nextId = 3;
+
+        // ===== DOM 元素參考 =====
+        const todoInput = document.getElementById('todoInput');
+        const descriptionInput = document.getElementById('descriptionInput');
+        const addBtn = document.getElementById('addBtn');
+        const todoList = document.getElementById('todoList');
+
+        // ===== 初始化應用程式 =====
+        function initApp() {
+            // 複製預設資料（避免修改原始資料）
+            todos = JSON.parse(JSON.stringify(defaultTodos));
+            nextId = Math.max(...todos.map(t => t.id)) + 1;
+
+            // 綁定事件
+            addBtn.addEventListener('click', addTodo);
+            todoInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            });
+
+            // Ctrl+Enter 快捷鍵送出（在兩個輸入框都可以使用）
+            const handleCtrlEnter = (e) => {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    addTodo();
+                }
+            };
+            todoInput.addEventListener('keydown', handleCtrlEnter);
+            descriptionInput.addEventListener('keydown', handleCtrlEnter);
+
+            // 渲染初始列表
+            renderTodos();
+        }
+
+        // ===== 新增 Todo =====
+        function addTodo() {
+            const name = todoInput.value.trim();
+            const description = descriptionInput.value.trim();
+
+            // 驗證：名稱不能為空
+            if (!name) {
+                todoInput.focus();
+                return;
+            }
+
+            // 建立新的 todo
+            const newTodo = {
+                id: nextId++,
+                name: name,
+                description: description || '（無描述）',
+                checked: false,
+                expanded: false
+            };
+
+            // 加入列表開頭（顯示在最上面）
+            todos.unshift(newTodo);
+
+            // 清空輸入框
+            todoInput.value = '';
+            descriptionInput.value = '';
+
+            // 重新渲染
+            renderTodos();
+
+            // 將焦點移回輸入框
+            todoInput.focus();
+        }
+
+        // ===== 刪除 Todo =====
+        function deleteTodo(id) {
+            todos = todos.filter(todo => todo.id !== id);
+            renderTodos();
+        }
+
+        // ===== 切換 Checkbox 狀態 =====
+        function toggleCheck(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.checked = !todo.checked;
+                renderTodos();
+            }
+        }
+
+        // ===== 展開/收合 Description =====
+        function toggleExpand(id) {
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.expanded = !todo.expanded;
+                renderTodos();
+            }
+        }
+
+        // ===== 渲染所有 Todos =====
+        function renderTodos() {
+            // 清空列表
+            todoList.innerHTML = '';
+
+            // 渲染每個 todo
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = 'todo-item';
+                li.dataset.id = todo.id;
+
+                // 主要內容區域
+                const mainDiv = document.createElement('div');
+                mainDiv.className = 'todo-item-main';
+
+                // Checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'todo-checkbox';
+                checkbox.checked = todo.checked;
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleCheck(todo.id);
+                });
+
+                // 名稱
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'todo-name';
+                nameSpan.textContent = todo.name;
+
+                // 刪除按鈕
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.textContent = 'delete';
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteTodo(todo.id);
+                });
+
+                // 組裝主要區域
+                mainDiv.appendChild(checkbox);
+                mainDiv.appendChild(nameSpan);
+                mainDiv.appendChild(deleteBtn);
+
+                // 點擊主區域展開/收合 description
+                mainDiv.addEventListener('click', (e) => {
+                    // 避免點擊 checkbox 或 delete 按鈕時觸發
+                    if (e.target !== checkbox && e.target !== deleteBtn) {
+                        toggleExpand(todo.id);
+                    }
+                });
+
+                // Description 區域
+                const descDiv = document.createElement('div');
+                descDiv.className = 'todo-description' + (todo.expanded ? ' expanded' : '');
+                const descP = document.createElement('p');
+                descP.textContent = todo.description;
+                descDiv.appendChild(descP);
+
+                // 組裝 todo item
+                li.appendChild(mainDiv);
+                li.appendChild(descDiv);
+
+                // 加入列表
+                todoList.appendChild(li);
+            });
+        }
+
+        // ===== 啟動應用程式 =====
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>
