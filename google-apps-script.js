@@ -108,6 +108,7 @@ function addTodo(params) {
   const id = params.id;
   const name = params.name;
   const description = params.description || '';
+  const priority = params.priority || '';
   const createdAt = params.createdAt;
 
   // 在最後一行之後新增資料
@@ -117,6 +118,7 @@ function addTodo(params) {
   // 設定資料
   sheet.getRange(newRow, COL.CREATED_AT).setValue(createdAt);
   sheet.getRange(newRow, COL.NAME).setValue(name);
+  sheet.getRange(newRow, COL.PRIORITY).setValue(priority);
   sheet.getRange(newRow, COL.DESCRIPTION).setValue(description);
   sheet.getRange(newRow, COL.CHECKED).insertCheckboxes().setValue(false);
   sheet.getRange(newRow, COL.ID).setValue(id);

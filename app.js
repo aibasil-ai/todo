@@ -6,7 +6,7 @@
 // ===== Google Sheets API 設定 =====
 // 從 localStorage 讀取，若無則使用預設值
 const STORAGE_KEY = 'todoApp_googleScriptUrl';
-const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbwrrEKSmeE07TG0_zz2Gl3QhsUfDiSO9oqnNFRjWqkIZZIu835Xe78tk2HBkFlx_3wrZg/exec';
+const DEFAULT_URL = '';
 let GOOGLE_SCRIPT_URL = localStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
 
 // ===== 應用程式狀態 =====
@@ -191,6 +191,7 @@ async function syncAddToSheet(todo) {
                 id: todo.id,
                 name: todo.name,
                 description: todo.description,
+                priority: todo.priority,
                 createdAt: todo.createdAt
             })
         });
@@ -283,6 +284,7 @@ async function addTodo() {
         id: generateId(),
         name: name,
         description: description || '（無描述）',
+        priority: document.getElementById('priorityInput').value,
         checked: false,
         expanded: false,
         createdAt: formatDateTime()
@@ -299,12 +301,16 @@ async function addTodo() {
         // 同步成功後，加入本地列表開頭
         todos.unshift(newTodo);
 
-        // 清空輸入框
-        todoInput.value = '';
-        descriptionInput.value = '';
+        // 重新排序
+        sortTodos();
 
         // 重新渲染
         renderTodos();
+
+        // 清空輸入框
+        todoInput.value = '';
+        descriptionInput.value = '';
+        document.getElementById('priorityInput').value = '';
 
         // 將焦點移回輸入框
         todoInput.focus();
@@ -314,7 +320,7 @@ async function addTodo() {
     } finally {
         // 恢復按鈕狀態
         addBtn.disabled = false;
-        addBtn.textContent = 'add';
+        addBtn.textContent = '新增';
     }
 }
 

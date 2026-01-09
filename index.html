@@ -22,8 +22,8 @@
             <div id="settingsPanel" class="settings-panel" style="display: none;">
                 <div class="settings-content">
                     <label for="scriptUrlInput" class="settings-label">Google Apps Script URL：</label>
-                    <input type="text" id="scriptUrlInput" class="settings-input" 
-                           placeholder="https://script.google.com/macros/s/.../exec">
+                    <input type="text" id="scriptUrlInput" class="settings-input"
+                        placeholder="https://script.google.com/macros/s/.../exec">
                     <div class="settings-actions">
                         <button id="saveSettingsBtn" class="save-settings-btn">儲存</button>
                         <button id="cancelSettingsBtn" class="cancel-settings-btn">取消</button>
@@ -34,7 +34,13 @@
             <div class="input-section">
                 <div class="new-todo-row">
                     <input type="text" id="todoInput" class="todo-input" placeholder="new todo">
-                    <button id="addBtn" class="add-btn">add</button>
+                    <select id="priorityInput" class="priority-select" title="優先權">
+                        <option value="">優先權</option>
+                        <option value="高">高</option>
+                        <option value="中">中</option>
+                        <option value="低">低</option>
+                    </select>
+                    <button id="addBtn" class="add-btn">新增</button>
                 </div>
 
                 <div class="description-wrapper">
