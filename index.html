@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,29 +8,24 @@
     <title>Todo List</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- 固定區域：標題和輸入框 -->
         <header class="header">
             <h1 class="title">todo list</h1>
-            
+
             <div class="input-section">
                 <div class="new-todo-row">
-                    <input 
-                        type="text" 
-                        id="todoInput" 
-                        class="todo-input" 
-                        placeholder="new todo"
-                    >
+                    <input type="text" id="todoInput" class="todo-input" placeholder="new todo">
                     <button id="addBtn" class="add-btn">add</button>
                 </div>
-                
-                <textarea 
-                    id="descriptionInput" 
-                    class="description-input" 
-                    placeholder="description"
-                    rows="3"
-                ></textarea>
+
+                <div class="description-wrapper">
+                    <textarea id="descriptionInput" class="description-input" placeholder="description"
+                        rows="3"></textarea>
+                    <span class="shortcut-hint">Ctrl+Enter 送出</span>
+                </div>
             </div>
         </header>
 
@@ -43,4 +39,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>

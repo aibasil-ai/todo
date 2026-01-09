@@ -45,6 +45,16 @@ function initApp() {
         }
     });
 
+    // Ctrl+Enter 快捷鍵送出（在兩個輸入框都可以使用）
+    const handleCtrlEnter = (e) => {
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            addTodo();
+        }
+    };
+    todoInput.addEventListener('keydown', handleCtrlEnter);
+    descriptionInput.addEventListener('keydown', handleCtrlEnter);
+
     // 渲染初始列表
     renderTodos();
 }
