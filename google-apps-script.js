@@ -115,11 +115,15 @@ function addTodo(params) {
   const lastRow = sheet.getLastRow();
   const newRow = lastRow + 1;
 
+  // 防止公式注入 (Formula Injection)
+  const safeName = (name && name.toString().startsWith('=')) ? "'" + name : name;
+  const safeDescription = (description && description.toString().startsWith('=')) ? "'" + description : description;
+
   // 設定資料
   sheet.getRange(newRow, COL.CREATED_AT).setValue(createdAt);
-  sheet.getRange(newRow, COL.NAME).setValue(name);
+  sheet.getRange(newRow, COL.NAME).setValue(safeName);
   sheet.getRange(newRow, COL.PRIORITY).setValue(priority);
-  sheet.getRange(newRow, COL.DESCRIPTION).setValue(description);
+  sheet.getRange(newRow, COL.DESCRIPTION).setValue(safeDescription);
   sheet.getRange(newRow, COL.CHECKED).insertCheckboxes().setValue(false);
   sheet.getRange(newRow, COL.ID).setValue(id);
 
