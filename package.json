@@ -1,0 +1,7 @@
+{
+  "name": "todo-js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Josh <joshlin@cht.com.tw>",
+  "license": "MIT"
+}
