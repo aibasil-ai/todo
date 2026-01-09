@@ -119,6 +119,21 @@ body {
     color: var(--placeholder-color);
 }
 
+/* ===== Description 區域包裝與快捷鍵提示 ===== */
+.description-wrapper {
+    position: relative;
+}
+
+.shortcut-hint {
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    font-size: 0.75rem;
+    color: #999999;
+    pointer-events: none;
+    user-select: none;
+}
+
 /* ===== 可捲動區域：Todo 列表 ===== */
 .todo-list-container {
     flex: 1;
