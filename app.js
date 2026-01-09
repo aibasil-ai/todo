@@ -114,6 +114,14 @@ function generateId() {
 
 // ===== 從 Google Sheets 載入 Todos =====
 async function loadTodosFromSheet() {
+    // 若未設定 URL，提示使用者並開啟設定面板
+    if (!GOOGLE_SCRIPT_URL) {
+        showSettingsPanel();
+        showError('請先設定 Google Apps Script URL 以啟用同步功能');
+        renderErrorState('尚未設定 Google Apps Script URL');
+        return;
+    }
+
     isLoading = true;
     renderLoadingState();
 
