@@ -423,27 +423,47 @@ function renderLoadingState() {
 }
 
 // ===== 渲染錯誤狀態（含重試按鈕） =====
+// ===== 渲染錯誤狀態（含重試按鈕） =====
 function renderErrorState(message) {
-    todoList.innerHTML = `
-        <li class="error-state" style="text-align: center; padding: 40px; color: #ef4444;">
-            <div style="font-size: 24px; margin-bottom: 10px;">❌</div>
-            <div style="margin-bottom: 15px;">載入失敗：${message}</div>
-            <button id="retryBtn" style="
-                background: #3b82f6;
-                color: white;
-                border: none;
-                padding: 10px 24px;
-                border-radius: 6px;
-                cursor: pointer;
-                font-size: 14px;
-            ">🔄 重試</button>
-        </li>
-    `;
+    todoList.innerHTML = '';
 
-    // 綁定重試按鈕事件
-    document.getElementById('retryBtn').addEventListener('click', () => {
+    // 建立錯誤訊息容器
+    const li = document.createElement('li');
+    li.className = 'error-state';
+    li.style.cssText = 'text-align: center; padding: 40px; color: #ef4444;';
+
+    // 圖示
+    const iconDiv = document.createElement('div');
+    iconDiv.style.cssText = 'font-size: 24px; margin-bottom: 10px;';
+    iconDiv.textContent = '❌';
+
+    // 錯誤訊息文字 (使用 textContent 防止 XSS)
+    const msgDiv = document.createElement('div');
+    msgDiv.style.marginBottom = '15px';
+    msgDiv.textContent = '載入失敗：' + message;
+
+    // 重試按鈕
+    const retryBtn = document.createElement('button');
+    retryBtn.textContent = '🔄 重試';
+    retryBtn.style.cssText = `
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+    `;
+    retryBtn.addEventListener('click', () => {
         loadTodosFromSheet();
     });
+
+    // 組裝
+    li.appendChild(iconDiv);
+    li.appendChild(msgDiv);
+    li.appendChild(retryBtn);
+
+    todoList.appendChild(li);
 }
 
 // ===== 渲染所有 Todos =====
