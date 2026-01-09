@@ -5,17 +5,17 @@
 
 // ===== 預設 Todo 資料 =====
 const defaultTodos = [
-    { 
-        id: 1, 
-        name: 'todo 1', 
-        description: '這是 todo 1 的描述內容。你可以在這裡加入更多關於這個待辦事項的詳細說明。', 
+    {
+        id: 1,
+        name: 'todo 1',
+        description: '這是 todo 1 的描述內容。你可以在這裡加入更多關於這個待辦事項的詳細說明。',
         checked: false,
         expanded: false
     },
-    { 
-        id: 2, 
-        name: 'todo3', 
-        description: '這是 todo3 的描述內容。點擊任務可以展開或收合這個描述區域。', 
+    {
+        id: 2,
+        name: 'todo3',
+        description: '這是 todo3 的描述內容。點擊任務可以展開或收合這個描述區域。',
         checked: false,
         expanded: false
     }
@@ -36,7 +36,7 @@ function initApp() {
     // 複製預設資料（避免修改原始資料）
     todos = JSON.parse(JSON.stringify(defaultTodos));
     nextId = Math.max(...todos.map(t => t.id)) + 1;
-    
+
     // 綁定事件
     addBtn.addEventListener('click', addTodo);
     todoInput.addEventListener('keypress', (e) => {
@@ -44,7 +44,7 @@ function initApp() {
             addTodo();
         }
     });
-    
+
     // 渲染初始列表
     renderTodos();
 }
@@ -53,13 +53,13 @@ function initApp() {
 function addTodo() {
     const name = todoInput.value.trim();
     const description = descriptionInput.value.trim();
-    
+
     // 驗證：名稱不能為空
     if (!name) {
         todoInput.focus();
         return;
     }
-    
+
     // 建立新的 todo
     const newTodo = {
         id: nextId++,
@@ -68,17 +68,17 @@ function addTodo() {
         checked: false,
         expanded: false
     };
-    
-    // 加入列表末端
-    todos.push(newTodo);
-    
+
+    // 加入列表開頭（顯示在最上面）
+    todos.unshift(newTodo);
+
     // 清空輸入框
     todoInput.value = '';
     descriptionInput.value = '';
-    
+
     // 重新渲染
     renderTodos();
-    
+
     // 將焦點移回輸入框
     todoInput.focus();
 }
@@ -111,17 +111,17 @@ function toggleExpand(id) {
 function renderTodos() {
     // 清空列表
     todoList.innerHTML = '';
-    
+
     // 渲染每個 todo
     todos.forEach(todo => {
         const li = document.createElement('li');
         li.className = 'todo-item';
         li.dataset.id = todo.id;
-        
+
         // 主要內容區域
         const mainDiv = document.createElement('div');
         mainDiv.className = 'todo-item-main';
-        
+
         // Checkbox
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -131,12 +131,12 @@ function renderTodos() {
             e.stopPropagation();
             toggleCheck(todo.id);
         });
-        
+
         // 名稱
         const nameSpan = document.createElement('span');
         nameSpan.className = 'todo-name';
         nameSpan.textContent = todo.name;
-        
+
         // 刪除按鈕
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'delete-btn';
@@ -145,12 +145,12 @@ function renderTodos() {
             e.stopPropagation();
             deleteTodo(todo.id);
         });
-        
+
         // 組裝主要區域
         mainDiv.appendChild(checkbox);
         mainDiv.appendChild(nameSpan);
         mainDiv.appendChild(deleteBtn);
-        
+
         // 點擊主區域展開/收合 description
         mainDiv.addEventListener('click', (e) => {
             // 避免點擊 checkbox 或 delete 按鈕時觸發
@@ -158,18 +158,18 @@ function renderTodos() {
                 toggleExpand(todo.id);
             }
         });
-        
+
         // Description 區域
         const descDiv = document.createElement('div');
         descDiv.className = 'todo-description' + (todo.expanded ? ' expanded' : '');
         const descP = document.createElement('p');
         descP.textContent = todo.description;
         descDiv.appendChild(descP);
-        
+
         // 組裝 todo item
         li.appendChild(mainDiv);
         li.appendChild(descDiv);
-        
+
         // 加入列表
         todoList.appendChild(li);
     });
