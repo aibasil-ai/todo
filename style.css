@@ -354,6 +354,56 @@ body {
     line-height: 1.5;
 }
 
+/* ===== Description 內的優先權調整 ===== */
+.desc-content {
+    margin-bottom: 12px;
+}
+
+.priority-edit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.priority-edit-label {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.priority-edit-select {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.priority-edit-select:hover {
+    border-color: #666;
+}
+
+.priority-edit-select:focus {
+    border-color: #3b82f6;
+}
+
+.priority-edit-select:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.priority-loading {
+    font-size: 0.85rem;
+    color: #3b82f6;
+    font-style: italic;
+}
+
 /* ===== 捲動條樣式 ===== */
 .todo-list-container::-webkit-scrollbar {
     width: 8px;

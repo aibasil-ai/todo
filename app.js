@@ -351,6 +351,36 @@ async function syncCompleteToSheet(id, completedAt) {
     }
 }
 
+// ===== 同步優先權更新到 Google Sheets =====
+async function syncUpdatePriorityToSheet(id, priority) {
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors',
+            redirect: 'follow',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({
+                action: 'updatePriority',
+                id: id,
+                priority: priority
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.error || '優先權同步失敗');
+        }
+
+        return true;
+    } catch (error) {
+        console.error('同步優先權失敗:', error);
+        throw error;
+    }
+}
+
 // ===== 新增 Todo =====
 async function addTodo() {
     const name = todoInput.value.trim();
@@ -498,6 +528,46 @@ function toggleExpand(id) {
     if (todo) {
         todo.expanded = !todo.expanded;
         renderTodos();
+    }
+}
+
+// ===== 更新優先權 =====
+async function updateTodoPriority(id, newPriority) {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
+    // 如果優先權沒有變化，不執行任何操作
+    if (todo.priority === newPriority) return;
+
+    // 顯示確認對話框
+    const priorityText = newPriority || '無';
+    const confirmed = await showConfirmModal(`確定要將「${todo.name}」的優先權改為「${priorityText}」嗎？`);
+    if (!confirmed) {
+        // 取消：重新渲染以恢復下拉選單的值
+        renderTodos();
+        return;
+    }
+
+    // 暫時標記為更新中
+    todo.updatingPriority = true;
+    renderTodos();
+
+    try {
+        // 同步到 Google Sheets
+        await syncUpdatePriorityToSheet(id, newPriority);
+
+        // 同步成功後，更新本地狀態
+        todo.priority = newPriority;
+        todo.updatingPriority = false;
+
+        // 重新排序並渲染
+        sortTodos();
+        renderTodos();
+    } catch (error) {
+        // 同步失敗，恢復狀態，顯示錯誤訊息
+        todo.updatingPriority = false;
+        renderTodos();
+        showError('優先權更新失敗：' + error.message);
     }
 }
 
@@ -685,9 +755,69 @@ function renderTodos() {
         // Description 區域
         const descDiv = document.createElement('div');
         descDiv.className = 'todo-description' + (todo.expanded ? ' expanded' : '');
+
+        // Description 內容區域
+        const descContentDiv = document.createElement('div');
+        descContentDiv.className = 'desc-content';
+
         const descP = document.createElement('p');
         descP.textContent = todo.description;
-        descDiv.appendChild(descP);
+        descContentDiv.appendChild(descP);
+
+        // 優先權調整區域
+        const priorityEditDiv = document.createElement('div');
+        priorityEditDiv.className = 'priority-edit';
+
+        const priorityLabel = document.createElement('label');
+        priorityLabel.textContent = '優先權：';
+        priorityLabel.className = 'priority-edit-label';
+
+        const prioritySelect = document.createElement('select');
+        prioritySelect.className = 'priority-edit-select';
+        prioritySelect.disabled = todo.updatingPriority || todo.deleting || todo.updating;
+
+        // 優先權選項
+        const priorityOptions = [
+            { value: '', text: '無' },
+            { value: '高', text: '🔴 高' },
+            { value: '中', text: '🟠 中' },
+            { value: '低', text: '🟢 低' }
+        ];
+
+        priorityOptions.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.value;
+            option.textContent = opt.text;
+            if (todo.priority === opt.value) {
+                option.selected = true;
+            }
+            prioritySelect.appendChild(option);
+        });
+
+        // 監聽選擇變更事件
+        prioritySelect.addEventListener('change', (e) => {
+            e.stopPropagation();
+            updateTodoPriority(todo.id, e.target.value);
+        });
+
+        // 防止點擊時觸發展開/收合
+        prioritySelect.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        priorityEditDiv.appendChild(priorityLabel);
+        priorityEditDiv.appendChild(prioritySelect);
+
+        // 如果正在更新，顯示載入狀態
+        if (todo.updatingPriority) {
+            const loadingSpan = document.createElement('span');
+            loadingSpan.className = 'priority-loading';
+            loadingSpan.textContent = ' 更新中...';
+            priorityEditDiv.appendChild(loadingSpan);
+        }
+
+        descDiv.appendChild(descContentDiv);
+        descDiv.appendChild(priorityEditDiv);
 
         // 組裝 todo item
         li.appendChild(mainDiv);

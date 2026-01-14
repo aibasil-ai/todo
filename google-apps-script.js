@@ -94,6 +94,8 @@ function doPost(e) {
         return toggleTodo(params);
       case 'complete':
         return completeTodo(params);
+      case 'updatePriority':
+        return updatePriority(params);
       default:
         return createJsonResponse({ success: false, error: '未知的操作: ' + action });
     }
@@ -203,6 +205,30 @@ function completeTodo(params) {
       }
 
       return createJsonResponse({ success: true, message: '完成日期更新成功並已搬移' });
+    }
+  }
+
+  return createJsonResponse({ success: false, error: '找不到對應的 Todo' });
+}
+
+// ===== 更新優先權 =====
+function updatePriority(params) {
+  const sheet = getSheet();
+  const id = params.id;
+  const priority = params.priority || '';
+
+  // 尋找對應的列
+  const lastRow = sheet.getLastRow();
+  const idRange = sheet.getRange(HEADER_ROW + 1, COL.ID, lastRow - HEADER_ROW, 1);
+  const ids = idRange.getValues();
+
+  for (let i = 0; i < ids.length; i++) {
+    if (ids[i][0] === id) {
+      const rowNum = HEADER_ROW + 1 + i;
+      // 更新優先權
+      sheet.getRange(rowNum, COL.PRIORITY).setValue(priority);
+
+      return createJsonResponse({ success: true, message: '優先權更新成功' });
     }
   }
 
