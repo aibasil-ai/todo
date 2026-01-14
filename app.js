@@ -24,6 +24,13 @@ const scriptUrlInput = document.getElementById('scriptUrlInput');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
 
+// 確認對話框 DOM 元素
+const confirmModal = document.getElementById('confirmModal');
+const confirmMessage = document.getElementById('confirmMessage');
+const confirmYesBtn = document.getElementById('confirmYesBtn');
+const confirmNoBtn = document.getElementById('confirmNoBtn');
+let confirmResolve = null;
+
 // ===== 初始化應用程式 =====
 function initApp() {
     // 設定面板事件
@@ -53,6 +60,36 @@ function initApp() {
     loadTodosFromSheet();
 }
 
+// ===== 自訂確認對話框 =====
+function showConfirmModal(message) {
+    return new Promise((resolve) => {
+        confirmMessage.textContent = message;
+        confirmModal.style.display = 'flex';
+        confirmResolve = resolve;
+    });
+}
+
+function hideConfirmModal() {
+    confirmModal.style.display = 'none';
+    confirmResolve = null;
+}
+
+// 確認按鈕事件
+confirmYesBtn.addEventListener('click', () => {
+    if (confirmResolve) confirmResolve(true);
+    hideConfirmModal();
+});
+
+confirmNoBtn.addEventListener('click', () => {
+    if (confirmResolve) confirmResolve(false);
+    hideConfirmModal();
+});
+
+// 點擊背景也可以取消
+document.querySelector('.confirm-modal-backdrop')?.addEventListener('click', () => {
+    if (confirmResolve) confirmResolve(false);
+    hideConfirmModal();
+});
 // ===== 設定面板功能 =====
 function toggleSettingsPanel() {
     if (settingsPanel.style.display === 'none') {
@@ -105,6 +142,14 @@ function formatDateTime(date = new Date()) {
     const seconds = String(date.getSeconds()).padStart(2, '0');
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+// ===== 輔助函式：格式化日期 (僅日期) =====
+function formatDateOnly(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
 // ===== 輔助函式：產生唯一 ID =====
@@ -276,6 +321,36 @@ async function syncToggleToSheet(id, checked) {
     }
 }
 
+// ===== 同步完成日期到 Google Sheets =====
+async function syncCompleteToSheet(id, completedAt) {
+    try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'cors',
+            redirect: 'follow',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({
+                action: 'complete',
+                id: id,
+                completedAt: completedAt
+            })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.error || '完成日期同步失敗');
+        }
+
+        return true;
+    } catch (error) {
+        console.error('同步完成日期失敗:', error);
+        throw error;
+    }
+}
+
 // ===== 新增 Todo =====
 async function addTodo() {
     const name = todoInput.value.trim();
@@ -332,10 +407,44 @@ async function addTodo() {
     }
 }
 
+// ===== 標記完成 =====
+async function completeTodo(id) {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
+    // 確認對話框
+    const confirmed = await showConfirmModal(`確定要將「${todo.name}」標記為完成嗎？`);
+    if (!confirmed) return;
+
+    // 暫時標記為完成中
+    todo.completing = true;
+    renderTodos();
+
+    const completedAt = formatDateOnly();
+
+    try {
+        // 先同步到 Google Sheets
+        await syncCompleteToSheet(id, completedAt);
+
+        // 同步成功後，從本地列表中移除（因為後端會將資料搬移到已完成分頁）
+        todos = todos.filter(t => t.id !== id);
+        renderTodos();
+    } catch (error) {
+        // 同步失敗，恢復狀態，顯示錯誤訊息
+        todo.completing = false;
+        renderTodos();
+        showError('標記完成失敗：' + error.message);
+    }
+}
+
 // ===== 刪除 Todo =====
 async function deleteTodo(id) {
     const todo = todos.find(t => t.id === id);
     if (!todo) return;
+
+    // 確認對話框
+    const confirmed = await showConfirmModal(`確定要刪除「${todo.name}」嗎？此操作無法復原。`);
+    if (!confirmed) return;
 
     // 暫時標記為刪除中
     todo.deleting = true;
@@ -541,17 +650,28 @@ function renderTodos() {
         // 刪除按鈕
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'delete-btn';
-        deleteBtn.textContent = todo.deleting ? '...' : 'delete';
+        deleteBtn.textContent = todo.deleting ? '...' : '刪除';
         deleteBtn.disabled = todo.deleting || todo.updating;
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             deleteTodo(todo.id);
         });
 
+        // 完成按鈕
+        const completeBtn = document.createElement('button');
+        completeBtn.className = 'complete-btn';
+        completeBtn.textContent = todo.completing ? '...' : '完成';
+        completeBtn.disabled = todo.completing || todo.deleting || todo.updating;
+        completeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            completeTodo(todo.id);
+        });
+
         // 組裝主要區域
         mainDiv.appendChild(checkbox);
         mainDiv.appendChild(priorityDot);
         mainDiv.appendChild(nameSpan);
+        mainDiv.appendChild(completeBtn);
         mainDiv.appendChild(deleteBtn);
 
         // 點擊主區域展開/收合 description

@@ -92,6 +92,8 @@ function doPost(e) {
         return deleteTodo(params);
       case 'toggle':
         return toggleTodo(params);
+      case 'complete':
+        return completeTodo(params);
       default:
         return createJsonResponse({ success: false, error: '未知的操作: ' + action });
     }
@@ -175,6 +177,38 @@ function toggleTodo(params) {
   return createJsonResponse({ success: false, error: '找不到對應的 Todo' });
 }
 
+// ===== 標記完成並更新完成日期 =====
+function completeTodo(params) {
+  const sheet = getSheet();
+  const id = params.id;
+  const completedAt = params.completedAt;  // 格式：YYYY-MM-DD
+
+  // 尋找對應的列
+  const lastRow = sheet.getLastRow();
+  const idRange = sheet.getRange(HEADER_ROW + 1, COL.ID, lastRow - HEADER_ROW, 1);
+  const ids = idRange.getValues();
+
+  for (let i = 0; i < ids.length; i++) {
+    if (ids[i][0] === id) {
+      const rowNum = HEADER_ROW + 1 + i;
+      // 設定完成日期
+      sheet.getRange(rowNum, COL.COMPLETED_AT).setValue(completedAt);
+
+      // 呼叫搬移函式，將資料移到「生活待辦完成」分頁
+      try {
+        moveRowWithFormat(sheet, "生活待辦完成", rowNum);
+      } catch (e) {
+        // 如果搬移失敗，記錄錯誤但仍回傳成功（日期已更新）
+        console.log('搬移資料列失敗: ' + e.message);
+      }
+
+      return createJsonResponse({ success: true, message: '完成日期更新成功並已搬移' });
+    }
+  }
+
+  return createJsonResponse({ success: false, error: '找不到對應的 Todo' });
+}
+
 // ===== 輔助函式 =====
 
 // 建立 JSON 回應
@@ -203,4 +237,66 @@ function formatDate(date) {
 // 取得當前日期時間
 function getCurrentDateTime() {
   return formatDate(new Date());
+}
+
+/**
+ * 自動雙向搬移資料列（含格式版 + 自動增列防呆）
+ */
+function onEdit(e) {
+  const ss = e.source;
+  const range = e.range;
+  const sheet = range.getSheet();
+  const sheetName = sheet.getName();
+  const row = range.getRow();
+  const col = range.getColumn();
+  const value = range.getValue();
+
+  // --- 設定區域 ---
+  const MAIN_SHEET = "生活";
+  const TARGET_SHEET = "生活待辦完成";
+  const DATE_COL = 4;            // 假設日期在 D 欄
+  // ----------------
+
+  if (row <= 1) return;
+
+  // 1. 移至「已完成」 (檢查是否為該分頁、該欄位、且值為日期物件)
+  if (sheetName === MAIN_SHEET && col === DATE_COL && value instanceof Date) {
+    moveRowWithFormat(sheet, TARGET_SHEET, row);
+  }
+  // 2. 移回「原始資料」 (檢查是否為該分頁、該欄位、且值被清空)
+  else if (sheetName === TARGET_SHEET && col === DATE_COL && value === "") {
+    moveRowWithFormat(sheet, MAIN_SHEET, row);
+  }
+}
+
+/**
+ * 帶格式搬移的核心函式
+ */
+function moveRowWithFormat(sourceSheet, destSheetName, row) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const destSheet = ss.getSheetByName(destSheetName);
+
+  // 來源資料範圍
+  const lastCol = sourceSheet.getLastColumn();
+  const sourceRange = sourceSheet.getRange(row, 1, 1, lastCol);
+
+  // --- 修改重點開始：檢查目標分頁是否有空間 ---
+  const destLastRow = destSheet.getLastRow(); // 目標分頁最後一筆有資料的列
+  const destMaxRows = destSheet.getMaxRows(); // 目標分頁總共有幾列網格
+
+  // 如果最後一筆資料的位置 已經等於 格子總數，代表沒位子了，需新增一列
+  if (destLastRow >= destMaxRows) {
+    destSheet.insertRowAfter(destMaxRows);
+  }
+  // --- 修改重點結束 ---
+
+  // 設定目標寫入位置 (最後一筆資料的下一列)
+  const destRow = destLastRow + 1;
+  const destRange = destSheet.getRange(destRow, 1, 1, lastCol);
+
+  // 將整列含格式複製到目標位置
+  sourceRange.copyTo(destRange);
+
+  // 刪除原始列
+  sourceSheet.deleteRow(row);
 }
