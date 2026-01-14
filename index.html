@@ -33,19 +33,19 @@
 
             <div class="input-section">
                 <div class="new-todo-row">
-                    <input type="text" id="todoInput" class="todo-input" placeholder="new todo">
-                    <select id="priorityInput" class="priority-select" title="優先權">
+                    <input type="text" id="todoInput" class="todo-input" placeholder="new todo" tabindex="1">
+                    <select id="priorityInput" class="priority-select" title="優先權" tabindex="3">
                         <option value="">優先權</option>
                         <option value="高">🔴 高</option>
                         <option value="中">🟠 中</option>
                         <option value="低">🟢 低</option>
                     </select>
-                    <button id="addBtn" class="add-btn">新增</button>
+                    <button id="addBtn" class="add-btn" tabindex="4">新增</button>
                 </div>
 
                 <div class="description-wrapper">
-                    <textarea id="descriptionInput" class="description-input" placeholder="description"
-                        rows="3"></textarea>
+                    <textarea id="descriptionInput" class="description-input" placeholder="description" rows="3"
+                        tabindex="2"></textarea>
                     <span class="shortcut-hint">Ctrl+Enter 送出</span>
                 </div>
             </div>
