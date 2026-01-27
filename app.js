@@ -178,7 +178,7 @@ async function loadTodosFromSheet() {
             todos = result.data.map(item => ({
                 id: item.id,
                 name: item.name,
-                description: item.description || '（無描述）',
+                description: item.description || '',
                 priority: item.priority || '',
                 checked: item.checked,
                 expanded: false,
@@ -396,7 +396,7 @@ async function addTodo() {
     const newTodo = {
         id: generateId(),
         name: name,
-        description: description || '（無描述）',
+        description: description,
         priority: document.getElementById('priorityInput').value,
         checked: false,
         expanded: false,
@@ -761,7 +761,7 @@ function renderTodos() {
         descContentDiv.className = 'desc-content';
 
         const descP = document.createElement('p');
-        descP.textContent = todo.description;
+        descP.textContent = todo.description || '（無描述）';
         descContentDiv.appendChild(descP);
 
         // 優先權調整區域
