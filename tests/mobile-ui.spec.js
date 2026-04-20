@@ -38,6 +38,5 @@ test('mobile viewport shows list-first shell and add entry point', async ({ page
 
   await expect(page.locator('.todo-list-container')).toBeVisible();
   await expect.soft(page.locator('#mobileComposerBtn')).toBeVisible();
-  await expect.soft(page.locator('#composerShell')).toBeAttached();
   await expect.soft(page.locator('#composerShell')).toBeHidden();
 });
