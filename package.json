@@ -3,5 +3,13 @@
   "version": "1.0.0",
   "description": "簡潔的 Todo List 待辦事項應用程式",
   "author": "Aibasil <aibasil@joshlucky.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.53.0",
+    "http-server": "^14.1.1"
+  }
 }
