@@ -718,6 +718,7 @@ body.drawer-open {
 
     #mobileComposerBtn[aria-expanded="true"] {
         opacity: 0;
+        visibility: hidden;
         pointer-events: none;
     }
 

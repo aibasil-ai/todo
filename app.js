@@ -87,6 +87,8 @@ function setComposerOpen(open) {
     composerBackdrop.dataset.open = shouldOpen ? 'true' : 'false';
     composerShell.setAttribute('aria-hidden', composerHidden ? 'true' : 'false');
     mobileComposerBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    mobileComposerBtn.setAttribute('aria-hidden', shouldOpen ? 'true' : 'false');
+    mobileComposerBtn.tabIndex = shouldOpen ? -1 : 0;
     document.body.classList.toggle('drawer-open', shouldOpen);
 
     if (shouldOpen) {
@@ -104,7 +106,13 @@ function openComposer() {
 }
 
 function closeComposer() {
+    const wasOpen = composerShell.dataset.open === 'true';
+
     setComposerOpen(false);
+
+    if (MOBILE_MEDIA_QUERY.matches && wasOpen) {
+        mobileComposerBtn.focus();
+    }
 }
 
 // ===== 自訂確認對話框 =====

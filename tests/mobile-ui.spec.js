@@ -57,3 +57,18 @@ test('mobile add drawer opens, focuses the title field, and closes after add', a
   await expect(page.getByText('買牛奶')).toBeVisible();
   await expect(page.locator('#composerShell')).toBeHidden();
 });
+
+test('mobile drawer closes and returns focus to the add button', async ({ page }) => {
+  await bootstrapApp(page, { todos: [] });
+
+  const mobileComposerBtn = page.locator('#mobileComposerBtn');
+
+  await mobileComposerBtn.click();
+  await expect(page.locator('#composerShell')).toBeVisible();
+  await expect(page.locator('#todoInput')).toBeFocused();
+
+  await page.locator('#closeComposerBtn').click();
+
+  await expect(page.locator('#composerShell')).toBeHidden();
+  await expect(mobileComposerBtn).toBeFocused();
+});
