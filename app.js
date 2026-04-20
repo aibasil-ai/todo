@@ -28,6 +28,7 @@ const composerShell = document.getElementById('composerShell');
 const composerBackdrop = document.getElementById('composerBackdrop');
 const mobileComposerBtn = document.getElementById('mobileComposerBtn');
 const closeComposerBtn = document.getElementById('closeComposerBtn');
+const statusMessageBar = document.getElementById('statusMessageBar');
 const MOBILE_MEDIA_QUERY = window.matchMedia('(max-width: 480px)');
 
 // 確認對話框 DOM 元素
@@ -36,6 +37,7 @@ const confirmMessage = document.getElementById('confirmMessage');
 const confirmYesBtn = document.getElementById('confirmYesBtn');
 const confirmNoBtn = document.getElementById('confirmNoBtn');
 let confirmResolve = null;
+let statusMessageTimer = null;
 
 // ===== 初始化應用程式 =====
 function initApp() {
@@ -480,6 +482,8 @@ async function addTodo() {
         descriptionInput.value = '';
         priorityInput.value = '';
 
+        showSuccess('已新增待辦');
+
         if (MOBILE_MEDIA_QUERY.matches) {
             closeComposer();
         } else {
@@ -629,83 +633,67 @@ async function updateTodoPriority(id, newPriority) {
     }
 }
 
+function showStatusMessage(message, type = 'error') {
+    if (!statusMessageBar) {
+        return;
+    }
+
+    if (statusMessageTimer) {
+        clearTimeout(statusMessageTimer);
+    }
+
+    statusMessageBar.textContent = message;
+    statusMessageBar.dataset.type = type;
+    statusMessageBar.classList.add('visible');
+
+    statusMessageTimer = setTimeout(() => {
+        statusMessageBar.classList.remove('visible');
+        statusMessageTimer = null;
+    }, 3000);
+}
+
 // ===== 顯示錯誤訊息 =====
 function showError(message) {
-    // 建立錯誤提示元素
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-toast';
-    errorDiv.textContent = message;
-    errorDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #ef4444;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 1000;
-        animation: slideIn 0.3s ease;
-    `;
+    showStatusMessage(message, 'error');
+}
 
-    document.body.appendChild(errorDiv);
-
-    // 3 秒後自動移除
-    setTimeout(() => {
-        errorDiv.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => errorDiv.remove(), 300);
-    }, 3000);
+function showSuccess(message) {
+    showStatusMessage(message, 'success');
 }
 
 // ===== 渲染載入中狀態 =====
 function renderLoadingState() {
     todoList.innerHTML = `
-        <li class="loading-state" style="text-align: center; padding: 40px; color: #666;">
-            <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
-            <div>載入中...</div>
+        <li class="loading-state">
+            <div class="state-title">資料載入中</div>
+            <div class="state-copy">請稍候，正在同步待辦清單。</div>
         </li>
     `;
 }
 
 // ===== 渲染錯誤狀態（含重試按鈕） =====
-// ===== 渲染錯誤狀態（含重試按鈕） =====
 function renderErrorState(message) {
-    todoList.innerHTML = '';
-
-    // 建立錯誤訊息容器
     const li = document.createElement('li');
     li.className = 'error-state';
-    li.style.cssText = 'text-align: center; padding: 40px; color: #ef4444;';
 
-    // 圖示
-    const iconDiv = document.createElement('div');
-    iconDiv.style.cssText = 'font-size: 24px; margin-bottom: 10px;';
-    iconDiv.textContent = '❌';
+    const title = document.createElement('div');
+    title.className = 'state-title';
+    title.textContent = '載入失敗';
 
-    // 錯誤訊息文字 (使用 textContent 防止 XSS)
-    const msgDiv = document.createElement('div');
-    msgDiv.style.marginBottom = '15px';
-    msgDiv.textContent = '載入失敗：' + message;
+    const copy = document.createElement('div');
+    copy.className = 'state-copy';
+    copy.textContent = '請檢查設定或稍後再試：' + message;
 
-    // 重試按鈕
     const retryBtn = document.createElement('button');
-    retryBtn.textContent = '🔄 重試';
-    retryBtn.style.cssText = `
-        background: #3b82f6;
-        color: white;
-        border: none;
-        padding: 10px 24px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-    `;
+    retryBtn.className = 'retry-btn';
+    retryBtn.textContent = '重新載入';
     retryBtn.addEventListener('click', () => {
         loadTodosFromSheet();
     });
 
-    // 組裝
-    li.appendChild(iconDiv);
-    li.appendChild(msgDiv);
+    todoList.innerHTML = '';
+    li.appendChild(title);
+    li.appendChild(copy);
     li.appendChild(retryBtn);
 
     todoList.appendChild(li);
@@ -719,9 +707,9 @@ function renderTodos() {
     // 若無資料，顯示空狀態
     if (todos.length === 0) {
         todoList.innerHTML = `
-            <li class="empty-state" style="text-align: center; padding: 40px; color: #666;">
-                <div style="font-size: 24px; margin-bottom: 10px;">📝</div>
-                <div>尚無待辦事項</div>
+            <li class="empty-state">
+                <div class="state-title">尚無待辦事項</div>
+                <div class="state-copy empty-state-hint">點選下方「新增待辦」開始建立第一筆待辦。</div>
             </li>
         `;
         return;

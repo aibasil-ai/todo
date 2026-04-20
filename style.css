@@ -299,6 +299,87 @@ body.drawer-open {
     display: none;
 }
 
+.status-message-bar {
+    position: fixed;
+    left: 50%;
+    bottom: 84px;
+    transform: translate(-50%, 16px);
+    width: min(calc(100% - 20px), 560px);
+    padding: 12px 16px;
+    border-radius: 14px;
+    color: #ffffff;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    z-index: 120;
+}
+
+.status-message-bar[data-type="error"] {
+    background: #dc2626;
+}
+
+.status-message-bar[data-type="success"] {
+    background: #15803d;
+}
+
+.status-message-bar.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
+.loading-state,
+.empty-state,
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 240px;
+    padding: 40px 24px;
+    text-align: center;
+}
+
+.state-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.state-copy {
+    max-width: 28ch;
+    color: #666666;
+    line-height: 1.6;
+}
+
+.empty-state-hint {
+    color: #4b5563;
+}
+
+.error-state .state-title,
+.error-state .state-copy {
+    color: #b91c1c;
+}
+
+.retry-btn {
+    min-height: 44px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.retry-btn:hover {
+    background: #1d4ed8;
+}
+
 /* ===== Todo Item 樣式 ===== */
 .todo-item {
     border-bottom: 1px solid #e0e0e0;
@@ -743,6 +824,11 @@ body.drawer-open {
         z-index: 90;
     }
 
+    .status-message-bar {
+        bottom: 68px;
+        width: calc(100% - 20px);
+    }
+
     #mobileComposerBtn[aria-expanded="true"] {
         opacity: 0;
         visibility: hidden;
@@ -784,5 +870,16 @@ body.drawer-open {
     .priority-edit {
         align-items: stretch;
         flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .todo-description,
+    .status-message-bar,
+    .composer-shell,
+    .confirm-modal-content,
+    #composerShell {
+        animation: none !important;
+        transition: none !important;
     }
 }

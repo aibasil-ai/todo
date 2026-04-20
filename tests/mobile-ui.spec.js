@@ -73,6 +73,31 @@ test('mobile drawer closes and returns focus to the add button', async ({ page }
   await expect(mobileComposerBtn).toBeFocused();
 });
 
+test('mobile empty state guides the user to the add button', async ({ page }) => {
+  await bootstrapApp(page, { todos: [] });
+
+  await expect(page.getByText('點選下方「新增待辦」開始建立第一筆待辦。')).toBeVisible();
+});
+
+test('mobile add failures render inside the message bar', async ({ page }) => {
+  await bootstrapApp(page, {
+    todos: [],
+    postResolver: async (payload) => {
+      if (payload.action === 'add') {
+        return { success: false, error: 'Mock add failed' };
+      }
+
+      return { success: true };
+    },
+  });
+
+  await page.getByRole('button', { name: '新增待辦' }).click();
+  await page.locator('#todoInput').fill('買咖啡');
+  await page.getByRole('button', { name: '新增', exact: true }).click();
+
+  await expect(page.locator('#statusMessageBar')).toContainText('新增失敗：Mock add failed');
+});
+
 test('mobile row keeps complete and delete inside the expanded section', async ({ page }) => {
   await bootstrapApp(page, {
     todos: [
