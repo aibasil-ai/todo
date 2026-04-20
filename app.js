@@ -710,10 +710,14 @@ function renderTodos() {
 
     // 若無資料，顯示空狀態
     if (todos.length === 0) {
+        const emptyStateHint = MOBILE_MEDIA_QUERY.matches
+            ? '點選下方「新增待辦」開始建立第一筆待辦。'
+            : '使用上方輸入區開始建立第一筆待辦。';
+
         todoList.innerHTML = `
             <li class="empty-state">
                 <div class="state-title">尚無待辦事項</div>
-                <div class="state-copy empty-state-hint">點選下方「新增待辦」開始建立第一筆待辦。</div>
+                <div class="state-copy empty-state-hint">${emptyStateHint}</div>
             </li>
         `;
         return;

@@ -18,5 +18,12 @@ module.exports = defineConfig({
         browserName: 'chromium',
       },
     },
+    {
+      name: 'desktop-chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        browserName: 'chromium',
+      },
+    },
   ],
 });
