@@ -40,3 +40,20 @@ test('mobile viewport shows list-first shell and add entry point', async ({ page
   await expect(page.locator('#mobileComposerBtn')).toBeVisible();
   await expect(page.locator('#composerShell')).toBeHidden();
 });
+
+test('mobile add drawer opens, focuses the title field, and closes after add', async ({ page }) => {
+  await bootstrapApp(page, { todos: [] });
+
+  await page.getByRole('button', { name: '新增待辦' }).click();
+
+  await expect(page.locator('#composerShell')).toBeVisible();
+  await expect(page.locator('#todoInput')).toBeFocused();
+
+  await page.locator('#todoInput').fill('買牛奶');
+  await page.locator('#descriptionInput').fill('超商鮮奶');
+  await page.locator('#priorityInput').selectOption('高');
+  await page.getByRole('button', { name: '新增', exact: true }).click();
+
+  await expect(page.getByText('買牛奶')).toBeVisible();
+  await expect(page.locator('#composerShell')).toBeHidden();
+});

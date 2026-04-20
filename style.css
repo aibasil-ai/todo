@@ -25,6 +25,10 @@ body {
     padding: 20px;
 }
 
+body.drawer-open {
+    overflow: hidden;
+}
+
 /* ===== 主容器 ===== */
 .app-container {
     width: 100%;
@@ -39,6 +43,21 @@ body {
     background-color: var(--bg-color);
     padding-bottom: 20px;
     flex-shrink: 0;
+}
+
+#composerBackdrop {
+    display: none;
+}
+
+#composerShell {
+    background-color: var(--container-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+}
+
+#closeComposerBtn {
+    display: none;
 }
 
 .title-row {
@@ -141,10 +160,6 @@ body {
 }
 
 .input-section {
-    background-color: var(--container-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
     display: grid;
     grid-template-columns: 1fr auto auto;
     grid-template-rows: auto auto;
@@ -278,6 +293,10 @@ body {
 
 .todo-list {
     list-style: none;
+}
+
+#mobileComposerBtn {
+    display: none;
 }
 
 /* ===== Todo Item 樣式 ===== */
@@ -589,8 +608,71 @@ body {
         padding: 10px;
     }
 
+    .app-container {
+        height: calc(100vh - 20px);
+        padding-bottom: 84px;
+    }
+
+    .header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        padding-bottom: 12px;
+    }
+
     .title {
         font-size: 1.5rem;
+    }
+
+    #composerBackdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        z-index: 100;
+    }
+
+    #composerBackdrop[data-open="true"] {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    #composerShell {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border-radius: 20px 20px 12px 12px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+        transform: translateY(calc(100% + 20px));
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        z-index: 101;
+    }
+
+    #composerShell[data-open="true"] {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    #closeComposerBtn {
+        display: inline-flex;
+        align-self: flex-end;
+        margin-bottom: 12px;
+        border: none;
+        background: transparent;
+        color: #666666;
+        cursor: pointer;
+        font-size: 0.95rem;
     }
 
     /* 手機版使用 flex 容器，控制子元素順序 */
@@ -615,6 +697,28 @@ body {
     .input-section .add-btn {
         order: 4;
         width: 100%;
+    }
+
+    #mobileComposerBtn {
+        display: block;
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        min-height: 48px;
+        border: 2px solid var(--border-color);
+        border-radius: 999px;
+        background: var(--container-bg);
+        color: var(--text-color);
+        font-size: 1rem;
+        font-weight: 600;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+        z-index: 90;
+    }
+
+    #mobileComposerBtn[aria-expanded="true"] {
+        opacity: 0;
+        pointer-events: none;
     }
 
     .todo-item-main {

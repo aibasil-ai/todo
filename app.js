@@ -16,6 +16,7 @@ let isLoading = false;
 // ===== DOM 元素參考 =====
 const todoInput = document.getElementById('todoInput');
 const descriptionInput = document.getElementById('descriptionInput');
+const priorityInput = document.getElementById('priorityInput');
 const addBtn = document.getElementById('addBtn');
 const todoList = document.getElementById('todoList');
 const settingsBtn = document.getElementById('settingsBtn');
@@ -23,6 +24,11 @@ const settingsPanel = document.getElementById('settingsPanel');
 const scriptUrlInput = document.getElementById('scriptUrlInput');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
+const composerShell = document.getElementById('composerShell');
+const composerBackdrop = document.getElementById('composerBackdrop');
+const mobileComposerBtn = document.getElementById('mobileComposerBtn');
+const closeComposerBtn = document.getElementById('closeComposerBtn');
+const MOBILE_MEDIA_QUERY = window.matchMedia('(max-width: 480px)');
 
 // 確認對話框 DOM 元素
 const confirmModal = document.getElementById('confirmModal');
@@ -40,6 +46,9 @@ function initApp() {
 
     // 綁定事件
     addBtn.addEventListener('click', addTodo);
+    mobileComposerBtn.addEventListener('click', openComposer);
+    closeComposerBtn.addEventListener('click', closeComposer);
+    composerBackdrop.addEventListener('click', closeComposer);
     todoInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             addTodo();
@@ -55,9 +64,47 @@ function initApp() {
     };
     todoInput.addEventListener('keydown', handleCtrlEnter);
     descriptionInput.addEventListener('keydown', handleCtrlEnter);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeComposer();
+        }
+    });
+    MOBILE_MEDIA_QUERY.addEventListener('change', () => {
+        setComposerOpen(false);
+    });
+
+    setComposerOpen(false);
 
     // 從 Google Sheets 載入資料
     loadTodosFromSheet();
+}
+
+function setComposerOpen(open) {
+    const shouldOpen = MOBILE_MEDIA_QUERY.matches && open;
+    const composerHidden = MOBILE_MEDIA_QUERY.matches && !shouldOpen;
+
+    composerShell.dataset.open = shouldOpen ? 'true' : 'false';
+    composerBackdrop.dataset.open = shouldOpen ? 'true' : 'false';
+    composerShell.setAttribute('aria-hidden', composerHidden ? 'true' : 'false');
+    mobileComposerBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    document.body.classList.toggle('drawer-open', shouldOpen);
+
+    if (shouldOpen) {
+        todoInput.focus();
+    }
+}
+
+function openComposer() {
+    if (!MOBILE_MEDIA_QUERY.matches) {
+        todoInput.focus();
+        return;
+    }
+
+    setComposerOpen(true);
+}
+
+function closeComposer() {
+    setComposerOpen(false);
 }
 
 // ===== 自訂確認對話框 =====
@@ -397,7 +444,7 @@ async function addTodo() {
         id: generateId(),
         name: name,
         description: description,
-        priority: document.getElementById('priorityInput').value,
+        priority: priorityInput.value,
         checked: false,
         expanded: false,
         createdAt: formatDateTime()
@@ -423,10 +470,13 @@ async function addTodo() {
         // 清空輸入框
         todoInput.value = '';
         descriptionInput.value = '';
-        document.getElementById('priorityInput').value = '';
+        priorityInput.value = '';
 
-        // 將焦點移回輸入框
-        todoInput.focus();
+        if (MOBILE_MEDIA_QUERY.matches) {
+            closeComposer();
+        } else {
+            todoInput.focus();
+        }
     } catch (error) {
         // 同步失敗，顯示錯誤訊息，不更新本地狀態
         showError('新增失敗：' + error.message);

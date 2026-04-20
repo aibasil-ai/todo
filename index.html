@@ -32,24 +32,28 @@
                 </div>
             </div>
 
-            <div class="input-section">
-                <input type="text" id="todoInput" class="todo-input" placeholder="new todo" tabindex="1">
+            <div id="composerBackdrop" data-open="false"></div>
+            <section id="composerShell" data-open="false" aria-hidden="true">
+                <button id="closeComposerBtn" type="button" aria-label="關閉新增待辦">關閉</button>
+                <div class="input-section">
+                    <input type="text" id="todoInput" class="todo-input" placeholder="new todo" tabindex="1" aria-label="待辦事項">
 
-                <div class="description-wrapper">
-                    <textarea id="descriptionInput" class="description-input" placeholder="description" rows="3"
-                        tabindex="2"></textarea>
-                    <span class="shortcut-hint">Ctrl+Enter 送出</span>
+                    <div class="description-wrapper">
+                        <textarea id="descriptionInput" class="description-input" placeholder="description" rows="3"
+                            tabindex="2" aria-label="描述"></textarea>
+                        <span class="shortcut-hint">Ctrl+Enter 送出</span>
+                    </div>
+
+                    <select id="priorityInput" class="priority-select" title="優先權" tabindex="3" aria-label="優先權">
+                        <option value="">優先權</option>
+                        <option value="高">🔴 高</option>
+                        <option value="中">🟠 中</option>
+                        <option value="低">🟢 低</option>
+                    </select>
+
+                    <button id="addBtn" class="add-btn" tabindex="4">新增</button>
                 </div>
-
-                <select id="priorityInput" class="priority-select" title="優先權" tabindex="3">
-                    <option value="">優先權</option>
-                    <option value="高">🔴 高</option>
-                    <option value="中">🟠 中</option>
-                    <option value="低">🟢 低</option>
-                </select>
-
-                <button id="addBtn" class="add-btn" tabindex="4">新增</button>
-            </div>
+            </section>
         </header>
 
         <!-- 可捲動區域：Todo 列表 -->
@@ -58,6 +62,8 @@
                 <!-- Todo items 會動態插入這裡 -->
             </ul>
         </main>
+
+        <button id="mobileComposerBtn" type="button" aria-controls="composerShell" aria-expanded="false">新增待辦</button>
     </div>
 
     <!-- 自訂確認對話框 -->
