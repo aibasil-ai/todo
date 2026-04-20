@@ -311,6 +311,7 @@ body.drawer-open {
 .todo-item-main {
     display: flex;
     align-items: center;
+    gap: 12px;
     padding: 15px;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -323,15 +324,31 @@ body.drawer-open {
 .todo-checkbox {
     width: 20px;
     height: 20px;
-    margin-right: 15px;
     cursor: pointer;
     accent-color: var(--text-color);
+    flex-shrink: 0;
+}
+
+.todo-copy {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .todo-name {
-    flex: 1;
     font-size: 1rem;
     color: var(--text-color);
+    font-weight: 600;
+}
+
+.todo-preview {
+    font-size: 0.9rem;
+    color: #666666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .delete-btn {
@@ -371,6 +388,16 @@ body.drawer-open {
     font-size: 0.95rem;
     color: #555555;
     line-height: 1.5;
+}
+
+.todo-secondary-actions {
+    display: none;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.todo-description.expanded .todo-secondary-actions {
+    display: flex;
 }
 
 /* ===== Description 內的優先權調整 ===== */
@@ -724,10 +751,38 @@ body.drawer-open {
 
     .todo-item-main {
         padding: 12px;
+        align-items: flex-start;
     }
 
+    .todo-copy {
+        gap: 6px;
+    }
+
+    .todo-preview {
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+    }
+
+    .todo-secondary-actions {
+        flex-direction: column;
+    }
+
+    .complete-btn,
+    .delete-btn,
+    .priority-edit-select {
+        min-height: 44px;
+    }
+
+    .complete-btn,
     .delete-btn {
-        padding: 6px 12px;
-        font-size: 0.85rem;
+        width: 100%;
+    }
+
+    .priority-edit {
+        align-items: stretch;
+        flex-direction: column;
     }
 }

@@ -770,10 +770,20 @@ function renderTodos() {
         `;
         priorityDot.title = todo.priority ? `優先權：${todo.priority}` : '無優先權';
 
-        // 名稱
+        // 文字區塊
+        const copyDiv = document.createElement('div');
+        copyDiv.className = 'todo-copy';
+
         const nameSpan = document.createElement('span');
         nameSpan.className = 'todo-name';
         nameSpan.textContent = todo.name;
+
+        const previewSpan = document.createElement('span');
+        previewSpan.className = 'todo-preview';
+        previewSpan.textContent = todo.description || '點擊查看詳細內容';
+
+        copyDiv.appendChild(nameSpan);
+        copyDiv.appendChild(previewSpan);
 
         // 刪除按鈕
         const deleteBtn = document.createElement('button');
@@ -798,14 +808,12 @@ function renderTodos() {
         // 組裝主要區域
         mainDiv.appendChild(checkbox);
         mainDiv.appendChild(priorityDot);
-        mainDiv.appendChild(nameSpan);
-        mainDiv.appendChild(completeBtn);
-        mainDiv.appendChild(deleteBtn);
+        mainDiv.appendChild(copyDiv);
 
         // 點擊主區域展開/收合 description
         mainDiv.addEventListener('click', (e) => {
-            // 避免點擊 checkbox 或 delete 按鈕時觸發
-            if (e.target !== checkbox && e.target !== deleteBtn) {
+            // 互動控制項自行處理，不觸發主列展開
+            if (e.target !== checkbox) {
                 toggleExpand(todo.id);
             }
         });
@@ -821,6 +829,11 @@ function renderTodos() {
         const descP = document.createElement('p');
         descP.textContent = todo.description || '（無描述）';
         descContentDiv.appendChild(descP);
+
+        const secondaryActionsDiv = document.createElement('div');
+        secondaryActionsDiv.className = 'todo-secondary-actions';
+        secondaryActionsDiv.appendChild(completeBtn);
+        secondaryActionsDiv.appendChild(deleteBtn);
 
         // 優先權調整區域
         const priorityEditDiv = document.createElement('div');
@@ -875,6 +888,7 @@ function renderTodos() {
         }
 
         descDiv.appendChild(descContentDiv);
+        descDiv.appendChild(secondaryActionsDiv);
         descDiv.appendChild(priorityEditDiv);
 
         // 組裝 todo item

@@ -72,3 +72,29 @@ test('mobile drawer closes and returns focus to the add button', async ({ page }
   await expect(page.locator('#composerShell')).toBeHidden();
   await expect(mobileComposerBtn).toBeFocused();
 });
+
+test('mobile row keeps complete and delete inside the expanded section', async ({ page }) => {
+  await bootstrapApp(page, {
+    todos: [
+      {
+        id: 'todo-1',
+        name: '買牛奶',
+        description: '超商鮮奶',
+        priority: '高',
+        checked: false,
+        createdAt: '2026-04-20 09:00:00',
+      },
+    ],
+  });
+
+  const todoItem = page.locator('.todo-item').first();
+  const secondaryActions = todoItem.locator('.todo-secondary-actions');
+
+  await expect(secondaryActions).toBeHidden();
+
+  await todoItem.locator('.todo-item-main').click();
+
+  await expect(secondaryActions).toBeVisible();
+  await expect(secondaryActions.getByRole('button', { name: '完成' })).toBeVisible();
+  await expect(secondaryActions.getByRole('button', { name: '刪除' })).toBeVisible();
+});
