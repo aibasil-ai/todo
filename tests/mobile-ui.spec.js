@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-async function bootstrapApp(page, { todos = [], postResolver } = {}) {
+async function bootstrapApp(page, { todos = [], getResolver, postResolver } = {}) {
   await page.addInitScript(() => {
     window.localStorage.setItem(
       'todoApp_googleScriptUrl',
@@ -12,9 +12,13 @@ async function bootstrapApp(page, { todos = [], postResolver } = {}) {
     const request = route.request();
 
     if (request.method() === 'GET') {
+      const result = getResolver
+        ? await getResolver()
+        : { success: true, data: todos };
+
       await route.fulfill({
         contentType: 'application/json',
-        body: JSON.stringify({ success: true, data: todos }),
+        body: JSON.stringify(result),
       });
       return;
     }
@@ -96,6 +100,55 @@ test('mobile add failures render inside the message bar', async ({ page }) => {
   await page.getByRole('button', { name: '新增', exact: true }).click();
 
   await expect(page.locator('#statusMessageBar')).toContainText('新增失敗：Mock add failed');
+});
+
+test('mobile retry button reloads once and recovers from the error state', async ({ page }) => {
+  let getAttempts = 0;
+  let resolveRetryLoad;
+  const retryLoad = new Promise((resolve) => {
+    resolveRetryLoad = resolve;
+  });
+
+  await bootstrapApp(page, {
+    getResolver: async () => {
+      getAttempts += 1;
+
+      if (getAttempts === 1) {
+        return { success: false, error: 'Mock load failed' };
+      }
+
+      await retryLoad;
+      return {
+        success: true,
+        data: [
+          {
+            id: 'todo-1',
+            name: '買麵包',
+            description: '',
+            priority: '',
+            checked: false,
+            createdAt: '2026-04-20 10:00:00',
+          },
+        ],
+      };
+    },
+  });
+
+  await expect(page.getByText('載入失敗')).toBeVisible();
+
+  await page.evaluate(() => {
+    const retryButton = Array.from(document.querySelectorAll('button')).find(
+      (button) => button.textContent === '重新載入'
+    );
+
+    retryButton.click();
+    retryButton.click();
+  });
+
+  resolveRetryLoad();
+
+  await expect(page.getByText('買麵包')).toBeVisible();
+  expect(getAttempts).toBe(2);
 });
 
 test('mobile row keeps complete and delete inside the expanded section', async ({ page }) => {

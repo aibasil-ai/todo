@@ -874,9 +874,22 @@ body.drawer-open {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .settings-btn,
+    .todo-input,
+    .add-btn,
     .todo-description,
+    .description-input,
     .status-message-bar,
-    .composer-shell,
+    .todo-item-main,
+    .delete-btn,
+    .complete-btn,
+    .priority-edit-select,
+    .save-settings-btn,
+    .cancel-settings-btn,
+    .confirm-yes-btn,
+    .confirm-no-btn,
+    #composerBackdrop,
+    #mobileComposerBtn,
     .confirm-modal-content,
     #composerShell {
         animation: none !important;

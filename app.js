@@ -224,6 +224,10 @@ async function loadTodosFromSheet() {
         return;
     }
 
+    if (isLoading) {
+        return;
+    }
+
     isLoading = true;
     renderLoadingState();
 
