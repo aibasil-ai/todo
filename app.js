@@ -815,15 +815,7 @@ function renderTodos() {
             '低': '#22c55e'  // 綠色
         };
         const color = priorityColors[todo.priority] || '#9ca3af'; // 預設灰色
-        priorityDot.style.cssText = `
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: ${color};
-            margin-right: 10px;
-            flex-shrink: 0;
-        `;
+        priorityDot.style.backgroundColor = color;
         priorityDot.title = todo.priority ? `優先權：${todo.priority}` : '無優先權';
 
         // 文字區塊
@@ -833,13 +825,15 @@ function renderTodos() {
         const nameSpan = document.createElement('span');
         nameSpan.className = 'todo-name';
         nameSpan.textContent = todo.name;
-
-        const previewSpan = document.createElement('span');
-        previewSpan.className = 'todo-preview';
-        previewSpan.textContent = todo.description || '點擊查看詳細內容';
-
         copyDiv.appendChild(nameSpan);
-        copyDiv.appendChild(previewSpan);
+
+        const hasDescription = Boolean(todo.description && todo.description.trim());
+        if (hasDescription) {
+            const previewSpan = document.createElement('span');
+            previewSpan.className = 'todo-preview';
+            previewSpan.textContent = todo.description.trim();
+            copyDiv.appendChild(previewSpan);
+        }
 
         // 刪除按鈕
         const deleteBtn = document.createElement('button');
@@ -878,13 +872,16 @@ function renderTodos() {
         const descDiv = document.createElement('div');
         descDiv.className = 'todo-description' + (todo.expanded ? ' expanded' : '');
 
-        // Description 內容區域
-        const descContentDiv = document.createElement('div');
-        descContentDiv.className = 'desc-content';
+        // Description 內容區域（有備註內容時才顯示）
+        if (hasDescription) {
+            const descContentDiv = document.createElement('div');
+            descContentDiv.className = 'desc-content';
 
-        const descP = document.createElement('p');
-        descP.textContent = todo.description || '（無描述）';
-        descContentDiv.appendChild(descP);
+            const descP = document.createElement('p');
+            descP.textContent = todo.description.trim();
+            descContentDiv.appendChild(descP);
+            descDiv.appendChild(descContentDiv);
+        }
 
         const secondaryActionsDiv = document.createElement('div');
         secondaryActionsDiv.className = 'todo-secondary-actions';

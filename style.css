@@ -486,6 +486,14 @@ body.drawer-open {
     flex-shrink: 0;
 }
 
+.priority-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
 .todo-copy {
     min-width: 0;
     flex: 1;
@@ -545,6 +553,8 @@ body.drawer-open {
     font-size: 0.95rem;
     color: #555555;
     line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .todo-secondary-actions {
@@ -942,6 +952,10 @@ body.drawer-open {
     .todo-item-main {
         padding: 12px;
         align-items: flex-start;
+    }
+
+    .priority-dot {
+        margin-top: 4px;
     }
 
     .todo-copy {
