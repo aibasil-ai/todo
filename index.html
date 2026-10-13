@@ -38,20 +38,22 @@
                 <div class="input-section">
                     <input type="text" id="todoInput" class="todo-input" placeholder="new todo" tabindex="1" aria-label="待辦事項">
 
-                    <div class="description-wrapper">
-                        <textarea id="descriptionInput" class="description-input" placeholder="description" rows="3"
-                            tabindex="2" aria-label="描述"></textarea>
-                        <span class="shortcut-hint">Ctrl+Enter 送出</span>
-                    </div>
-
-                    <select id="priorityInput" class="priority-select" title="優先權" tabindex="3" aria-label="優先權">
+                    <select id="priorityInput" class="priority-select" title="優先權" tabindex="2" aria-label="優先權">
                         <option value="">優先權</option>
                         <option value="高">🔴 高</option>
                         <option value="中">🟠 中</option>
                         <option value="低">🟢 低</option>
                     </select>
 
+                    <button id="descToggleBtn" type="button" class="desc-toggle-btn" tabindex="3" title="展開/收合詳細備註 (Shift+Enter)" aria-expanded="false" aria-controls="descriptionWrapper">📝 備註</button>
+
                     <button id="addBtn" class="add-btn" tabindex="4">新增</button>
+
+                    <div id="descriptionWrapper" class="description-wrapper">
+                        <textarea id="descriptionInput" class="description-input" placeholder="description" rows="2"
+                            tabindex="5" aria-label="描述"></textarea>
+                        <span class="shortcut-hint">Ctrl+Enter 送出</span>
+                    </div>
                 </div>
             </section>
         </header>

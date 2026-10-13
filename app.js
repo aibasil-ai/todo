@@ -28,6 +28,8 @@ const composerShell = document.getElementById('composerShell');
 const composerBackdrop = document.getElementById('composerBackdrop');
 const mobileComposerBtn = document.getElementById('mobileComposerBtn');
 const closeComposerBtn = document.getElementById('closeComposerBtn');
+const descToggleBtn = document.getElementById('descToggleBtn');
+const descriptionWrapper = document.getElementById('descriptionWrapper');
 const statusMessageBar = document.getElementById('statusMessageBar');
 const MOBILE_MEDIA_QUERY = window.matchMedia('(max-width: 480px)');
 
@@ -51,9 +53,29 @@ function initApp() {
     mobileComposerBtn.addEventListener('click', openComposer);
     closeComposerBtn.addEventListener('click', closeComposer);
     composerBackdrop.addEventListener('click', closeComposer);
+
+    // 備註切換按鈕事件
+    if (descToggleBtn) {
+        descToggleBtn.addEventListener('click', () => {
+            toggleDescription();
+        });
+    }
+
+    if (descriptionInput) {
+        descriptionInput.addEventListener('input', updateDescToggleIndicator);
+    }
+
     todoInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             addTodo();
+        }
+    });
+
+    // Shift+Enter 快捷鍵展開並聚焦備註欄
+    todoInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.shiftKey) {
+            e.preventDefault();
+            toggleDescription(true);
         }
     });
 
@@ -68,17 +90,50 @@ function initApp() {
     descriptionInput.addEventListener('keydown', handleCtrlEnter);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeComposer();
+            if (MOBILE_MEDIA_QUERY.matches) {
+                closeComposer();
+            } else if (descriptionWrapper && descriptionWrapper.classList.contains('expanded')) {
+                toggleDescription(false);
+                todoInput.focus();
+            }
         }
     });
     MOBILE_MEDIA_QUERY.addEventListener('change', () => {
         setComposerOpen(false);
+        if (!MOBILE_MEDIA_QUERY.matches && descriptionWrapper && !descriptionInput.value.trim()) {
+            toggleDescription(false);
+        }
     });
 
     setComposerOpen(false);
 
     // 從 Google Sheets 載入資料
     loadTodosFromSheet();
+}
+
+// 展開 / 收合備註欄位 (桌面版)
+function toggleDescription(forcedOpen) {
+    if (!descriptionWrapper) return;
+    const isExpanded = descriptionWrapper.classList.contains('expanded');
+    const nextState = typeof forcedOpen === 'boolean' ? forcedOpen : !isExpanded;
+
+    descriptionWrapper.classList.toggle('expanded', nextState);
+    if (descToggleBtn) {
+        descToggleBtn.setAttribute('aria-expanded', nextState ? 'true' : 'false');
+        descToggleBtn.classList.toggle('active', nextState);
+        updateDescToggleIndicator();
+    }
+
+    if (nextState && !descriptionInput.disabled) {
+        descriptionInput.focus();
+    }
+}
+
+// 更新備註按鈕標記（若已填寫內容但收合，顯示提示小點）
+function updateDescToggleIndicator() {
+    if (!descToggleBtn || !descriptionInput) return;
+    const hasText = descriptionInput.value.trim().length > 0;
+    descToggleBtn.classList.toggle('has-content', hasText);
 }
 
 function setComposerOpen(open) {
@@ -485,6 +540,11 @@ async function addTodo() {
         todoInput.value = '';
         descriptionInput.value = '';
         priorityInput.value = '';
+
+        if (!MOBILE_MEDIA_QUERY.matches && descriptionWrapper) {
+            toggleDescription(false);
+        }
+        updateDescToggleIndicator();
 
         showSuccess('已新增待辦');
 

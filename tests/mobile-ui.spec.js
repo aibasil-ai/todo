@@ -202,6 +202,27 @@ test('desktop empty state keeps the top input visible and avoids mobile CTA copy
   await expect(page.getByText('點選下方「新增待辦」開始建立第一筆待辦。')).toHaveCount(0);
 });
 
+test('desktop composer provides compact layout and toggles note description', async ({ page }, testInfo) => {
+  desktopOnly(testInfo);
+  await bootstrapApp(page, { todos: [] });
+
+  const descToggleBtn = page.locator('#descToggleBtn');
+  const descriptionWrapper = page.locator('#descriptionWrapper');
+  const descriptionInput = page.locator('#descriptionInput');
+
+  await expect(descToggleBtn).toBeVisible();
+  await expect(descriptionWrapper).not.toHaveClass(/expanded/);
+
+  // 點擊展開備註
+  await descToggleBtn.click();
+  await expect(descriptionWrapper).toHaveClass(/expanded/);
+  await expect(descriptionInput).toBeFocused();
+
+  // 再次點擊收合備註
+  await descToggleBtn.click();
+  await expect(descriptionWrapper).not.toHaveClass(/expanded/);
+});
+
 test('expanded row delete action removes the todo after confirmation', async ({ page }) => {
   await bootstrapApp(page, {
     todos: [
