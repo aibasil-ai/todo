@@ -940,7 +940,6 @@ function renderTodos() {
             priorityEditDiv.appendChild(loadingSpan);
         }
 
-        descDiv.appendChild(descContentDiv);
         descDiv.appendChild(secondaryActionsDiv);
         descDiv.appendChild(priorityEditDiv);
 
