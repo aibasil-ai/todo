@@ -93,6 +93,44 @@ body.drawer-open {
     transform: rotate(30deg);
 }
 
+.refresh-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.15rem;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.65;
+    transition: opacity 0.2s, transform 0.2s;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.refresh-btn:hover {
+    opacity: 1;
+    transform: rotate(45deg);
+}
+
+.refresh-btn:active {
+    transform: scale(0.92);
+}
+
+.refresh-btn.spinning {
+    opacity: 1;
+    animation: refresh-spin 0.8s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes refresh-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* ===== 設定面板 ===== */
 .settings-panel {
     background-color: var(--container-bg);
@@ -1012,6 +1050,7 @@ body.drawer-open {
 
 @media (prefers-reduced-motion: reduce) {
     .settings-btn,
+    .refresh-btn,
     .todo-input,
     .add-btn,
     .desc-toggle-btn,

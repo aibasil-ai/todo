@@ -252,3 +252,57 @@ test('expanded row delete action removes the todo after confirmation', async ({ 
 
   await expect(page.locator('.todo-item')).toHaveCount(0);
 });
+
+test('refresh button executes background update and updates the list', async ({ page }) => {
+  let callCount = 0;
+  await bootstrapApp(page, {
+    getResolver: async () => {
+      callCount += 1;
+      if (callCount === 1) {
+        return {
+          success: true,
+          data: [
+            {
+              id: 'todo-1',
+              name: '初始項目',
+              description: '',
+              priority: '',
+              checked: false,
+              createdAt: '2026-04-20 09:00:00',
+            },
+          ],
+        };
+      }
+      return {
+        success: true,
+        data: [
+          {
+            id: 'todo-1',
+            name: '初始項目',
+            description: '',
+            priority: '',
+            checked: false,
+            createdAt: '2026-04-20 09:00:00',
+          },
+          {
+            id: 'todo-2',
+            name: '背景更新後項目',
+            description: '',
+            priority: '',
+            checked: false,
+            createdAt: '2026-04-20 10:00:00',
+          },
+        ],
+      };
+    },
+  });
+
+  await expect(page.getByText('初始項目')).toBeVisible();
+  const refreshBtn = page.locator('#refreshBtn');
+  await expect(refreshBtn).toBeVisible();
+
+  await refreshBtn.click();
+
+  await expect(page.getByText('背景更新後項目')).toBeVisible();
+  await expect(page.locator('#statusMessageBar')).toContainText('待辦清單已更新');
+});

@@ -12,6 +12,7 @@ let GOOGLE_SCRIPT_URL = localStorage.getItem(STORAGE_KEY) || DEFAULT_URL;
 // ===== 應用程式狀態 =====
 let todos = [];
 let isLoading = false;
+let isRefreshing = false;
 
 // ===== DOM 元素參考 =====
 const todoInput = document.getElementById('todoInput');
@@ -20,6 +21,7 @@ const priorityInput = document.getElementById('priorityInput');
 const addBtn = document.getElementById('addBtn');
 const todoList = document.getElementById('todoList');
 const settingsBtn = document.getElementById('settingsBtn');
+const refreshBtn = document.getElementById('refreshBtn');
 const settingsPanel = document.getElementById('settingsPanel');
 const scriptUrlInput = document.getElementById('scriptUrlInput');
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
@@ -45,6 +47,11 @@ let statusMessageTimer = null;
 function initApp() {
     // 設定面板事件
     settingsBtn.addEventListener('click', toggleSettingsPanel);
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            loadTodosFromSheet({ background: true });
+        });
+    }
     saveSettingsBtn.addEventListener('click', saveSettings);
     cancelSettingsBtn.addEventListener('click', hideSettingsPanel);
 
@@ -270,34 +277,46 @@ function generateId() {
 }
 
 // ===== 從 Google Sheets 載入 Todos =====
-async function loadTodosFromSheet() {
+async function loadTodosFromSheet({ background = false } = {}) {
     // 若未設定 URL，提示使用者並開啟設定面板
     if (!GOOGLE_SCRIPT_URL) {
         showSettingsPanel();
         showError('請先設定 Google Apps Script URL 以啟用同步功能');
-        renderErrorState('尚未設定 Google Apps Script URL');
+        if (!background) {
+            renderErrorState('尚未設定 Google Apps Script URL');
+        }
         return;
     }
 
-    if (isLoading) {
+    if (isLoading || isRefreshing) {
         return;
     }
 
-    isLoading = true;
-    renderLoadingState();
+    if (background) {
+        isRefreshing = true;
+        if (refreshBtn) {
+            refreshBtn.classList.add('spinning');
+            refreshBtn.disabled = true;
+        }
+    } else {
+        isLoading = true;
+        renderLoadingState();
+    }
 
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL);
         const result = await response.json();
 
         if (result.success) {
+            const expandedIds = new Set(todos.filter(t => t.expanded).map(t => t.id));
+
             todos = result.data.map(item => ({
                 id: item.id,
                 name: item.name,
                 description: item.description || '',
                 priority: item.priority || '',
                 checked: item.checked,
-                expanded: false,
+                expanded: expandedIds.has(item.id),
                 createdAt: item.createdAt
             }));
 
@@ -305,14 +324,29 @@ async function loadTodosFromSheet() {
             sortTodos();
 
             isLoading = false;
+            isRefreshing = false;
             renderTodos();
+
+            if (background) {
+                showSuccess('待辦清單已更新');
+            }
         } else {
             throw new Error(result.error || '載入失敗');
         }
     } catch (error) {
         console.error('載入 Todo 失敗:', error);
         isLoading = false;
-        renderErrorState(error.message);
+        isRefreshing = false;
+        if (background) {
+            showError('更新失敗：' + error.message);
+        } else {
+            renderErrorState(error.message);
+        }
+    } finally {
+        if (refreshBtn) {
+            refreshBtn.classList.remove('spinning');
+            refreshBtn.disabled = false;
+        }
     }
 }
 
