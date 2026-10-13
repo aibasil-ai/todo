@@ -854,6 +854,9 @@ body.drawer-open {
         transition: transform 0.2s ease, opacity 0.2s ease;
         z-index: 101;
         padding: 15px;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
     }
 
     #composerShell[data-open="true"] {
@@ -878,12 +881,17 @@ body.drawer-open {
     .input-section {
         display: flex;
         flex-direction: column;
+        align-items: stretch;
         gap: 10px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     /* 調整手機版順序：todo-input → description → priority → add-btn */
     .input-section .todo-input {
         order: 1;
+        width: 100%;
+        box-sizing: border-box;
         height: auto;
         padding: 10px 15px;
         font-size: 1rem;
@@ -891,6 +899,8 @@ body.drawer-open {
 
     .input-section .description-wrapper {
         order: 2;
+        width: 100%;
+        box-sizing: border-box;
         display: block !important;
         max-height: none !important;
         opacity: 1 !important;
@@ -901,21 +911,30 @@ body.drawer-open {
     }
 
     .input-section .description-input {
+        width: 100%;
+        box-sizing: border-box;
         padding: 10px 15px;
         font-size: 1rem;
         min-height: 60px;
     }
 
+    .shortcut-hint {
+        display: none;
+    }
+
     .input-section .priority-select {
         order: 3;
+        width: 100%;
+        box-sizing: border-box;
         height: auto;
-        padding: 10px 10px;
+        padding: 10px 12px;
         font-size: 1rem;
     }
 
     .input-section .add-btn {
         order: 4;
         width: 100%;
+        box-sizing: border-box;
         height: auto;
         padding: 10px 25px;
         font-size: 1rem;
