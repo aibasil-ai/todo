@@ -16,8 +16,15 @@
     box-sizing: border-box;
 }
 
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
     background-color: var(--bg-color);
     min-height: 100vh;
     display: flex;
@@ -268,7 +275,9 @@ body.drawer-open {
 
 .desc-toggle-btn {
     padding: 8px 10px;
+    font-family: inherit;
     font-size: 0.9rem;
+    line-height: 1;
     border: 2px solid var(--border-color);
     border-radius: 4px;
     background-color: white;
@@ -278,6 +287,7 @@ body.drawer-open {
     box-sizing: border-box;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
     white-space: nowrap;
     position: relative;
@@ -321,9 +331,14 @@ body.drawer-open {
 }
 
 .add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 8px 16px;
+    font-family: inherit;
     font-size: 0.95rem;
     font-weight: 600;
+    line-height: 1;
     background-color: var(--container-bg);
     border: 2px solid var(--border-color);
     border-radius: 4px;
