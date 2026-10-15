@@ -570,13 +570,20 @@ body.drawer-open {
 }
 
 .delete-btn {
-    padding: 8px 16px;
-    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    height: 32px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1;
     color: white;
     background-color: var(--delete-btn-color);
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    white-space: nowrap;
     transition: background-color 0.2s, transform 0.1s;
 }
 
@@ -593,27 +600,44 @@ body.drawer-open {
     max-height: 0;
     overflow: hidden;
     background-color: #f8f8f8;
-    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    transition: max-height 0.25s ease-out, padding 0.25s ease-out;
+    padding: 0 15px 0 48px;
 }
 
 .todo-description.expanded {
     max-height: 500px;
-    padding: 15px;
-    padding-left: 50px;
+    padding: 8px 15px 8px 48px;
+    border-top: 1px solid #f0f0f0;
 }
 
 .todo-description p {
-    font-size: 0.95rem;
-    color: #555555;
-    line-height: 1.5;
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.45;
     white-space: pre-wrap;
     word-break: break-word;
 }
 
+.desc-content {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* 展開後的整合操作列（單行緊湊排版） */
+.todo-expanded-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
 .todo-secondary-actions {
     display: none;
+    align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 0;
 }
 
 .todo-description.expanded .todo-secondary-actions {
@@ -621,28 +645,27 @@ body.drawer-open {
 }
 
 /* ===== Description 內的優先權調整 ===== */
-.desc-content {
-    margin-bottom: 12px;
-}
-
 .priority-edit {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding-top: 10px;
-    border-top: 1px solid #e0e0e0;
+    gap: 6px;
+    padding-top: 0;
+    border-top: none;
 }
 
 .priority-edit-label {
-    font-size: 0.9rem;
-    color: #666;
+    font-size: 0.85rem;
+    color: #666666;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .priority-edit-select {
-    padding: 6px 12px;
-    font-size: 0.9rem;
-    border: 2px solid var(--border-color);
+    padding: 0 8px;
+    font-size: 0.85rem;
+    height: 32px;
+    box-sizing: border-box;
+    border: 1.5px solid var(--border-color);
     border-radius: 4px;
     background-color: white;
     cursor: pointer;
@@ -711,14 +734,20 @@ body.drawer-open {
 
 /* ===== 完成按鈕樣式 ===== */
 .complete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    height: 32px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1;
     background-color: #22c55e;
     color: white;
     border: none;
-    padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem;
-    margin-right: 8px;
+    white-space: nowrap;
     transition: background-color 0.2s, transform 0.1s;
 }
 
@@ -1042,24 +1071,45 @@ body.drawer-open {
         overflow: hidden;
     }
 
-    .todo-secondary-actions {
-        flex-direction: column;
+    .todo-description.expanded {
+        padding: 8px 12px 10px 12px;
     }
 
-    .complete-btn,
-    .delete-btn,
-    .priority-edit-select {
-        min-height: 44px;
+    .todo-expanded-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .todo-secondary-actions {
+        display: none;
+        flex-direction: row;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .todo-description.expanded .todo-secondary-actions {
+        display: flex;
     }
 
     .complete-btn,
     .delete-btn {
-        width: 100%;
+        flex: 1;
+        width: auto;
+        min-height: 40px;
     }
 
     .priority-edit {
-        align-items: stretch;
-        flex-direction: column;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .priority-edit-select {
+        flex: 1;
+        min-height: 38px;
     }
 }
 

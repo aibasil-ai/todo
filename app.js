@@ -917,10 +917,8 @@ function renderTodos() {
             descDiv.appendChild(descContentDiv);
         }
 
-        const secondaryActionsDiv = document.createElement('div');
-        secondaryActionsDiv.className = 'todo-secondary-actions';
-        secondaryActionsDiv.appendChild(completeBtn);
-        secondaryActionsDiv.appendChild(deleteBtn);
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'todo-expanded-actions';
 
         // 優先權調整區域
         const priorityEditDiv = document.createElement('div');
@@ -974,8 +972,14 @@ function renderTodos() {
             priorityEditDiv.appendChild(loadingSpan);
         }
 
-        descDiv.appendChild(secondaryActionsDiv);
-        descDiv.appendChild(priorityEditDiv);
+        const secondaryActionsDiv = document.createElement('div');
+        secondaryActionsDiv.className = 'todo-secondary-actions';
+        secondaryActionsDiv.appendChild(completeBtn);
+        secondaryActionsDiv.appendChild(deleteBtn);
+
+        actionsDiv.appendChild(priorityEditDiv);
+        actionsDiv.appendChild(secondaryActionsDiv);
+        descDiv.appendChild(actionsDiv);
 
         // 組裝 todo item
         li.appendChild(mainDiv);
